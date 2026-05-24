@@ -1,5 +1,5 @@
 {
-  "name": "photon-friendy",
+  "name": "friendy-ui",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Friendy marketing site and waitlist",
   "dependencies": {
     "@types/node": "^20.19.41",
     "@types/react": "^18.3.29",
