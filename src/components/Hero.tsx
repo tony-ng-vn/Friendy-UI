@@ -8,7 +8,15 @@ import type { HeadlineHandle } from "./Headline";
 import GlassButton from "./GlassButton";
 import type { GlassButtonHandle } from "./GlassButton";
 
-type ConnectState = "idle" | "open" | "submitting" | "redirecting" | "waitlisted" | "backend-offline" | "error";
+type ConnectState =
+  | "idle"
+  | "open"
+  | "submitting"
+  | "ready-to-redirect"
+  | "redirecting"
+  | "waitlisted"
+  | "backend-offline"
+  | "error";
 
 const FRIENDY_API_BASE_URL =
   process.env.NEXT_PUBLIC_FRIENDY_API_BASE_URL?.replace(/\/$/, "") ?? "http://127.0.0.1:8788";
@@ -21,6 +29,7 @@ export default function Hero() {
   const [connectState, setConnectState] = useState<ConnectState>("idle");
   const [message, setMessage] = useState("");
   const [assignedPhoneNumber, setAssignedPhoneNumber] = useState<string | undefined>();
+  const [redirectUrl, setRedirectUrl] = useState<string | undefined>();
 
   const handleFirstDraw = useCallback(async () => {
     if (startedRef.current) return;
@@ -56,25 +65,36 @@ export default function Hero() {
       };
 
       if (response.status === 202 && body.error === "private_beta") {
+        setRedirectUrl(undefined);
+        setAssignedPhoneNumber(undefined);
         setConnectState("waitlisted");
         setMessage(body.message ?? "Friendy is currently in beta demo and will be rolling out to users one by one. Until then, please give Friendy some time.");
         return;
       }
 
       if (!response.ok || !body.redirectUrl) {
+        setRedirectUrl(undefined);
         setConnectState("error");
         setMessage(body.message ?? "Friendy could not start the connection. Check the local backend and try again.");
         return;
       }
 
       setAssignedPhoneNumber(body.assignedPhoneNumber);
-      setConnectState("redirecting");
-      setMessage("Opening iMessage. Send the prefilled start message to activate Friendy.");
-      window.location.href = body.redirectUrl;
+      setRedirectUrl(body.redirectUrl);
+      setConnectState("ready-to-redirect");
+      setMessage("Friendy is ready. Can I open iMessage so you can send the prefilled start message?");
     } catch {
+      setRedirectUrl(undefined);
       setConnectState("backend-offline");
       setMessage("Friendy backend is not running on this Mac yet. Start it locally, then try Connect again.");
     }
+  }
+
+  function openImessage() {
+    if (!redirectUrl) return;
+    setConnectState("redirecting");
+    setMessage("Opening iMessage. Send the prefilled start message to activate Friendy.");
+    window.location.href = redirectUrl;
   }
 
   return (
@@ -97,6 +117,8 @@ export default function Hero() {
                 onClick={() => {
                   setConnectState("idle");
                   setMessage("");
+                  setRedirectUrl(undefined);
+                  setAssignedPhoneNumber(undefined);
                 }}
                 aria-label="Close Connect"
               >
@@ -104,27 +126,50 @@ export default function Hero() {
               </button>
             </div>
 
-            <form className="space-y-3" onSubmit={connectFriendy}>
-              <label className="block text-sm font-medium" htmlFor="friendy-phone">
-                Phone number
-              </label>
-              <input
-                id="friendy-phone"
-                type="tel"
-                value={phoneNumber}
-                onChange={(event) => setPhoneNumber(event.target.value)}
-                placeholder="+1234567890"
-                className="h-12 w-full rounded-[6px] border border-[#d9984b]/35 bg-white px-3 font-display text-base outline-none transition focus:border-[#9d6b33] focus:ring-2 focus:ring-[#d9984b]/20"
-                autoComplete="tel"
-              />
-              <button
-                type="submit"
-                disabled={connectState === "submitting"}
-                className="h-11 w-full rounded-[6px] bg-[#4d4034] px-4 text-sm font-semibold text-[#fffaf4] transition hover:bg-[#3d3228] disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {connectState === "submitting" ? "Connecting..." : "Connect"}
-              </button>
-            </form>
+            {connectState === "ready-to-redirect" || connectState === "redirecting" ? (
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={openImessage}
+                  disabled={connectState === "redirecting"}
+                  className="h-11 w-full rounded-[6px] bg-[#4d4034] px-4 text-sm font-semibold text-[#fffaf4] transition hover:bg-[#3d3228] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {connectState === "redirecting" ? "Opening iMessage..." : "Open iMessage"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConnectState("open");
+                    setMessage("");
+                  }}
+                  className="h-10 w-full rounded-[6px] border border-[#d9984b]/35 px-4 text-sm font-semibold text-[#4d4034] transition hover:bg-[#f7eadb]"
+                >
+                  Not now
+                </button>
+              </div>
+            ) : (
+              <form className="space-y-3" onSubmit={connectFriendy}>
+                <label className="block text-sm font-medium" htmlFor="friendy-phone">
+                  Phone number
+                </label>
+                <input
+                  id="friendy-phone"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(event) => setPhoneNumber(event.target.value)}
+                  placeholder="+1234567890"
+                  className="h-12 w-full rounded-[6px] border border-[#d9984b]/35 bg-white px-3 font-display text-base outline-none transition focus:border-[#9d6b33] focus:ring-2 focus:ring-[#d9984b]/20"
+                  autoComplete="tel"
+                />
+                <button
+                  type="submit"
+                  disabled={connectState === "submitting"}
+                  className="h-11 w-full rounded-[6px] bg-[#4d4034] px-4 text-sm font-semibold text-[#fffaf4] transition hover:bg-[#3d3228] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {connectState === "submitting" ? "Connecting..." : "Join waitlist"}
+                </button>
+              </form>
+            )}
 
             {message ? (
               <p className="mt-4 rounded-[6px] border border-[#d9984b]/25 bg-[#faf4ec] p-3 text-sm leading-6">
