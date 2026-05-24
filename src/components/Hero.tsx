@@ -97,6 +97,16 @@ export default function Hero() {
     <section className="relative flex min-h-screen w-full flex-col items-center justify-center gap-8 bg-bg px-4">
       <RoseCurve onFirstDrawComplete={handleFirstDraw} />
       <Headline ref={headlineRef} />
+      <div className="relative z-10 max-w-md px-4 text-center">
+        <p className="font-serif text-lg leading-snug text-[#4d4034] sm:text-xl">
+          Remember people by the moment, not the name.
+        </p>
+        <p className="mt-3 font-display text-sm leading-relaxed text-[#7a644e] sm:text-base">
+          You meet people on LinkedIn, Instagram, iMessage, WhatsApp, WeChat, and
+          everywhere else — Friendy is one place to find them again by how you
+          met, not by name.
+        </p>
+      </div>
       <GlassButton ref={buttonRef} onClick={() => setConnectState("open")} />
 
       {connectState !== "idle" ? (
