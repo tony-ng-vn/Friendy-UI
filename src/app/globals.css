@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* ── Surfaces — warm parchment matching #D9984B family ── */
+  --color-bg: #faf4ec;
+
+  /* ── Curve strokes — soft peach ── */
+  --color-curve: #f0beaa;
+  --color-curve-2: #e8b49c;
+  --color-ghost: #f5ece6;
+
+  /* ── Typography ── */
+  --color-text: #4d4034;
+
+  /* ── Accent ── */
+  --color-accent: #d9984b;
+
+  /* ── Easing ── */
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ── Font ── */
+  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-serif: 'Eczar', serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--color-bg);
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ── Golden hour gradient — warm light washes ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 15% 10%, rgba(217, 152, 75, 0.10) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 90%, rgba(200, 130, 60, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(255, 230, 180, 0.06) 0%, transparent 70%);
+}
+
+/* ── Subtle grain ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 51;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+@keyframes letterJump {
+  0%   { transform: translateY(0); }
+  40%  { transform: translateY(-9px); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes shine {
+  0%, 100% { transform: translateX(-100%); }
+  50%      { transform: translateX(100%); }
+}
