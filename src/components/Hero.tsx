@@ -113,7 +113,7 @@ export default function Hero() {
                 type="tel"
                 value={phoneNumber}
                 onChange={(event) => setPhoneNumber(event.target.value)}
-                placeholder="+1 253 368 3150"
+                placeholder="+1234567890"
                 className="h-12 w-full rounded-[6px] border border-[#d9984b]/35 bg-white px-3 font-display text-base outline-none transition focus:border-[#9d6b33] focus:ring-2 focus:ring-[#d9984b]/20"
                 autoComplete="tel"
               />
