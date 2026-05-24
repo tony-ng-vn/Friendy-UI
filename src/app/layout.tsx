@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Eczar } from "next/font/google";
+import SiteQrCorner from "@/components/SiteQrCorner";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -29,7 +30,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${jakarta.variable} ${eczar.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <SiteQrCorner />
+      </body>
     </html>
   );
 }
