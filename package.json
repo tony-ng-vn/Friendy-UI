@@ -14,6 +14,7 @@
   "license": "ISC",
   "description": "Friendy marketing site and waitlist",
   "dependencies": {
+    "@libsql/client": "^0.17.3",
     "@types/node": "^20.19.41",
     "@types/react": "^18.3.29",
     "autoprefixer": "^10.5.0",

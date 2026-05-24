@@ -9,18 +9,7 @@ import GlassButton from "./GlassButton";
 import type { GlassButtonHandle } from "./GlassButton";
 import { normalizeEmail } from "@/lib/email";
 
-type ConnectState =
-  | "idle"
-  | "open"
-  | "submitting"
-  | "ready-to-redirect"
-  | "redirecting"
-  | "waitlisted"
-  | "backend-offline"
-  | "error";
-
-const FRIENDY_API_BASE_URL =
-  process.env.NEXT_PUBLIC_FRIENDY_API_BASE_URL?.replace(/\/$/, "") ?? "http://127.0.0.1:8788";
+type ConnectState = "idle" | "open" | "submitting" | "waitlisted" | "error";
 
 export default function Hero() {
   const headlineRef = useRef<HeadlineHandle>(null);
@@ -30,8 +19,6 @@ export default function Hero() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [connectState, setConnectState] = useState<ConnectState>("idle");
   const [message, setMessage] = useState("");
-  const [assignedPhoneNumber, setAssignedPhoneNumber] = useState<string | undefined>();
-  const [redirectUrl, setRedirectUrl] = useState<string | undefined>();
 
   const handleFirstDraw = useCallback(async () => {
     if (startedRef.current) return;
@@ -44,8 +31,6 @@ export default function Hero() {
   function resetModal() {
     setConnectState("idle");
     setMessage("");
-    setRedirectUrl(undefined);
-    setAssignedPhoneNumber(undefined);
     setEmail("");
     setPhoneNumber("");
   }
@@ -71,60 +56,41 @@ export default function Hero() {
     setMessage("");
 
     try {
-      const response = await fetch(`${FRIENDY_API_BASE_URL}/api/onboarding/connect`, {
+      const response = await fetch("/api/waitlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phoneNumber: trimmedPhone, email: normalizedEmail }),
+        body: JSON.stringify({
+          email: normalizedEmail,
+          phoneNumber: trimmedPhone,
+          source: "homepage",
+        }),
       });
       const body = (await response.json().catch(() => ({}))) as {
-        assignedPhoneNumber?: string;
         error?: string;
         message?: string;
-        redirectUrl?: string;
       };
 
-      if (response.status === 400 && body.error === "invalid_email") {
+      if (
+        response.status === 400 &&
+        (body.error === "invalid_email" || body.error === "invalid_phone")
+      ) {
         setConnectState("error");
-        setMessage(body.message ?? "Enter a valid email address.");
+        setMessage(body.message ?? "Check your waitlist details and try again.");
         return;
       }
 
-      if (response.status === 202 && body.error === "private_beta") {
-        setRedirectUrl(undefined);
-        setAssignedPhoneNumber(undefined);
-        setConnectState("waitlisted");
-        setMessage(
-          body.message ??
-            "Friendy is currently in beta demo and will be rolling out to users one by one. Until then, please give Friendy some time."
-        );
-        return;
-      }
-
-      if (!response.ok || !body.redirectUrl) {
-        setRedirectUrl(undefined);
+      if (!response.ok) {
         setConnectState("error");
-        setMessage(
-          body.message ?? "Friendy could not start the connection. Check the local backend and try again."
-        );
+        setMessage(body.message ?? "Could not join the waitlist right now. Please try again.");
         return;
       }
 
-      setAssignedPhoneNumber(body.assignedPhoneNumber);
-      setRedirectUrl(body.redirectUrl);
-      setConnectState("ready-to-redirect");
-      setMessage("Friendy is ready. Can I open iMessage so you can send the prefilled start message?");
+      setConnectState("waitlisted");
+      setMessage(body.message ?? "You're on the waitlist. We'll email you when Friendy is ready.");
     } catch {
-      setRedirectUrl(undefined);
-      setConnectState("backend-offline");
-      setMessage("Friendy backend is not running on this Mac yet. Start it locally, then try Connect again.");
+      setConnectState("error");
+      setMessage("Could not join the waitlist right now. Please try again.");
     }
-  }
-
-  function openImessage() {
-    if (!redirectUrl) return;
-    setConnectState("redirecting");
-    setMessage("Opening iMessage. Send the prefilled start message to activate Friendy.");
-    window.location.href = redirectUrl;
   }
 
   return (
@@ -153,75 +119,54 @@ export default function Hero() {
               </button>
             </div>
 
-            {connectState === "ready-to-redirect" || connectState === "redirecting" ? (
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  onClick={openImessage}
-                  disabled={connectState === "redirecting"}
-                  className="h-11 w-full cursor-pointer rounded-[6px] bg-[#4d4034] px-4 text-sm font-semibold text-[#fffaf4] transition hover:bg-[#3d3228] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9d6b33]"
-                >
-                  {connectState === "redirecting" ? "Opening iMessage..." : "Open iMessage"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setConnectState("open");
-                    setMessage("");
-                  }}
-                  className="h-10 w-full cursor-pointer rounded-[6px] border border-[#d9984b]/35 px-4 text-sm font-semibold text-[#4d4034] transition hover:bg-[#f7eadb] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9d6b33]"
-                >
-                  Not now
-                </button>
+            <form className="space-y-3" onSubmit={connectFriendy} noValidate>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium" htmlFor="friendy-email">
+                  Email
+                </label>
+                <input
+                  id="friendy-email"
+                  name="email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="you@gmail.com"
+                  className="h-12 w-full rounded-[6px] border border-[#d9984b]/35 bg-white px-3 font-display text-base outline-none transition focus:border-[#9d6b33] focus:ring-2 focus:ring-[#d9984b]/20"
+                  aria-describedby={connectState === "error" ? "friendy-form-error" : undefined}
+                />
+                <p className="mt-1 text-xs text-[#7a644e]">
+                  We&apos;ll email you when Friendy is ready.
+                </p>
               </div>
-            ) : (
-              <form className="space-y-3" onSubmit={connectFriendy} noValidate>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium" htmlFor="friendy-email">
-                    Email
-                  </label>
-                  <input
-                    id="friendy-email"
-                    name="email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder="you@gmail.com"
-                    className="h-12 w-full rounded-[6px] border border-[#d9984b]/35 bg-white px-3 font-display text-base outline-none transition focus:border-[#9d6b33] focus:ring-2 focus:ring-[#d9984b]/20"
-                    aria-describedby={connectState === "error" ? "friendy-form-error" : undefined}
-                  />
-                  <p className="mt-1 text-xs text-[#7a644e]">We&apos;ll email you when Friendy is ready.</p>
-                </div>
 
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium" htmlFor="friendy-phone">
-                    Phone number
-                  </label>
-                  <input
-                    id="friendy-phone"
-                    name="phone"
-                    type="tel"
-                    inputMode="tel"
-                    autoComplete="tel"
-                    value={phoneNumber}
-                    onChange={(event) => setPhoneNumber(event.target.value)}
-                    placeholder="+1234567890"
-                    className="h-12 w-full rounded-[6px] border border-[#d9984b]/35 bg-white px-3 font-display text-base outline-none transition focus:border-[#9d6b33] focus:ring-2 focus:ring-[#d9984b]/20"
-                    aria-describedby={connectState === "error" ? "friendy-form-error" : undefined}
-                  />
-                </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium" htmlFor="friendy-phone">
+                  Phone number
+                </label>
+                <input
+                  id="friendy-phone"
+                  name="phone"
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  value={phoneNumber}
+                  onChange={(event) => setPhoneNumber(event.target.value)}
+                  placeholder="+1234567890"
+                  className="h-12 w-full rounded-[6px] border border-[#d9984b]/35 bg-white px-3 font-display text-base outline-none transition focus:border-[#9d6b33] focus:ring-2 focus:ring-[#d9984b]/20"
+                  aria-describedby={connectState === "error" ? "friendy-form-error" : undefined}
+                />
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={connectState === "submitting"}
-                  className="h-11 w-full cursor-pointer rounded-[6px] bg-[#4d4034] px-4 text-sm font-semibold text-[#fffaf4] transition hover:bg-[#3d3228] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9d6b33]"
-                >
-                  {connectState === "submitting" ? "Joining..." : "Join waitlist"}
-                </button>
-              </form>
-            )}
+              <button
+                type="submit"
+                disabled={connectState === "submitting"}
+                className="h-11 w-full cursor-pointer rounded-[6px] bg-[#4d4034] px-4 text-sm font-semibold text-[#fffaf4] transition hover:bg-[#3d3228] disabled:cursor-not-allowed disabled:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9d6b33]"
+              >
+                {connectState === "submitting" ? "Joining..." : "Join waitlist"}
+              </button>
+            </form>
 
             {message ? (
               <p
@@ -231,10 +176,6 @@ export default function Hero() {
               >
                 {message}
               </p>
-            ) : null}
-
-            {assignedPhoneNumber ? (
-              <p className="mt-3 text-xs text-[#7a644e]">Assigned Friendy line: {assignedPhoneNumber}</p>
             ) : null}
           </div>
         </div>
