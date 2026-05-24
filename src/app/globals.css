@@ -3,27 +3,36 @@
 @tailwind utilities;
 
 :root {
-  /* ── Surfaces — warm parchment matching #D9984B family ── */
-  --color-bg: #faf4ec;
+  /* ── Surfaces — lavender / sky (character-led) ── */
+  --color-bg: #ebe4f5;
+  --color-bg-mid: #dde8f8;
+  --color-bg-deep: #c9d4f0;
 
-  /* ── Curve strokes — soft peach ── */
-  --color-curve: #f0beaa;
-  --color-curve-2: #e8b49c;
-  --color-ghost: #f5ece6;
+  /* ── Curve strokes — soft periwinkle ── */
+  --color-curve: #a8b8e8;
+  --color-curve-2: #94a8dc;
+  --color-ghost: #d8e0f4;
 
   /* ── Typography ── */
-  --color-text: #4d4034;
+  --color-text: #2d2640;
+  --color-text-muted: #5c5470;
 
   /* ── Accent ── */
-  --color-accent: #d9984b;
+  --color-accent: #6b8fd4;
+  --color-accent-soft: #9eb8e8;
+
+  /* ── Glass / UI ── */
+  --color-glass-bg: rgba(255, 255, 255, 0.55);
+  --color-glass-border: rgba(255, 255, 255, 0.75);
+  --color-glass-shadow: rgba(91, 77, 122, 0.12);
 
   /* ── Easing ── */
   --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* ── Font ── */
-  --font-display: 'Plus Jakarta Sans', system-ui, sans-serif;
-  --font-serif: 'Eczar', serif;
+  /* ── Font — SF Pro system stack ── */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -33,45 +42,60 @@
 }
 
 body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
   background-color: var(--color-bg);
+  color: var(--color-text);
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* ── Golden hour gradient — warm light washes ── */
+/* ── Soft lavender → sky gradient ── */
 body::before {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   z-index: 50;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 15% 10%, rgba(217, 152, 75, 0.10) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 90%, rgba(200, 130, 60, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(255, 230, 180, 0.06) 0%, transparent 70%);
+    radial-gradient(ellipse at 20% 15%, rgba(196, 181, 232, 0.45) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 85%, rgba(158, 184, 232, 0.35) 0%, transparent 50%),
+    linear-gradient(165deg, var(--color-bg) 0%, var(--color-bg-mid) 45%, var(--color-bg-deep) 100%);
 }
 
 /* ── Subtle grain ── */
 body::after {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   z-index: 51;
   pointer-events: none;
-  opacity: 0.025;
+  opacity: 0.03;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 200px 200px;
 }
 
-@keyframes letterJump {
-  0%   { transform: translateY(0); }
-  40%  { transform: translateY(-9px); }
-  100% { transform: translateY(0); }
+@keyframes characterBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
-@keyframes shine {
-  0%, 100% { transform: translateX(-100%); }
-  50%      { transform: translateX(100%); }
+.character-bob {
+  animation: characterBob 2.8s var(--ease-soft) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .character-bob {
+    animation: none;
+  }
 }

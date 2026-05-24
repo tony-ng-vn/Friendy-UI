@@ -2,13 +2,13 @@
 
 import { useRef, useEffect } from "react";
 
-/* ─── TIMING (seconds) ──────────────────────────────────────── */
+/* ─── TIMING (seconds) — slow background texture ─────────────── */
 const TIMING = {
-  firstDraw: 3.5,
-  draw: 12,
-  hold: 3,
-  erase: 10,
-  swapGap: 0.8,
+  firstDraw: 8,
+  draw: 18,
+  hold: 4,
+  erase: 16,
+  swapGap: 1.2,
 };
 
 const EASE = "cubic-bezier(0.45, 0, 0.55, 1)";
@@ -44,18 +44,11 @@ function buildLissajous(a: number, b: number, delta: number = Math.PI / 4): stri
 
 /* ─── COMPONENT ─────────────────────────────────────────────── */
 
-interface RoseCurveProps {
-  onFirstDrawComplete?: () => void;
-}
-
-export default function RoseCurve({ onFirstDrawComplete }: RoseCurveProps) {
+export default function RoseCurve() {
   const ghostRef = useRef<SVGPathElement>(null);
   const tracerRef = useRef<SVGPathElement>(null);
 
   const timersRef = useRef<number[]>([]);
-  const calledFirstRef = useRef(false);
-  const onFirstDrawRef = useRef(onFirstDrawComplete);
-  onFirstDrawRef.current = onFirstDrawComplete;
 
   useEffect(() => {
     const ghost = ghostRef.current;
@@ -74,13 +67,10 @@ export default function RoseCurve({ onFirstDrawComplete }: RoseCurveProps) {
 
     /* ── Reduced motion ── */
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      ghost.style.opacity = "1";
+      ghost.style.opacity = "0.35";
       tracer.style.strokeDasharray = "none";
       tracer.style.strokeDashoffset = "0";
-      if (!calledFirstRef.current) {
-        calledFirstRef.current = true;
-        onFirstDrawRef.current?.();
-      }
+      tracer.style.opacity = "0.25";
       return;
     }
 
@@ -100,13 +90,6 @@ export default function RoseCurve({ onFirstDrawComplete }: RoseCurveProps) {
 
       tracer!.style.transition = `stroke-dashoffset ${drawDur}s ${EASE}`;
       tracer!.style.strokeDashoffset = "0";
-
-      if (isFirst && !calledFirstRef.current) {
-        later(() => {
-          calledFirstRef.current = true;
-          onFirstDrawRef.current?.();
-        }, drawDur * 1000);
-      }
 
       later(() => {
         tracer!.style.transition = `stroke-dashoffset ${TIMING.erase}s ${EASE}`;
@@ -135,7 +118,7 @@ export default function RoseCurve({ onFirstDrawComplete }: RoseCurveProps) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
-      style={{ opacity: 0.7 }}
+      style={{ opacity: 0.14 }}
     >
       <path
         ref={ghostRef}
