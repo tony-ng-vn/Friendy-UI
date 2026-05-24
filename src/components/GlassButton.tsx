@@ -56,7 +56,7 @@ const GlassButton = forwardRef<GlassButtonHandle>(
         >
           <img
             src="/button.svg"
-            alt="manage your contacts with friendy"
+            alt="manage your contacts with friendy - signup to end waitlist"
             className="h-auto w-[clamp(190px,42vw,645px)]"
             draggable={false}
           />
