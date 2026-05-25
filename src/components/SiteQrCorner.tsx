@@ -1,5 +1,5 @@
 const SITE_URL = "https://friendy-ui.vercel.app";
-const QR_SRC = "/friendy-qr.svg";
+const QR_SRC = "/qr_code.svg";
 
 export default function SiteQrCorner() {
   return (

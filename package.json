@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "generate:qr": "node scripts/generate-qr-asset.mjs",
+    "flatten:qr": "node scripts/flatten-qr-svg.mjs",
     "alias:prod": "bash scripts/set-prod-aliases.sh",
     "deploy:prod": "npm run build && npx vercel --prod --yes && npm run alias:prod"
   },
