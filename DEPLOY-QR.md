@@ -2,7 +2,7 @@
 
 ## What ships
 
-- **QR:** `public/friendy-qr.svg` (regenerate with `npm run generate:qr`) → `/friendy-qr.svg`
+- **QR:** `public/qr_code.svg` (regenerate with `npm run generate:qr`) -> `/qr_code.svg`
 - **Mobile (iPhone):** QR hidden (`hidden md:block`)
 - **Desktop (≥768px):** QR bottom-right, size scales with viewport (`clamp` + `vmin`)
 
@@ -24,4 +24,4 @@ npm run alias:prod
 ## Verify
 
 - **Phone:** no QR card; waitlist button not covered
-- **Desktop:** QR visible bottom-right; `curl -sI https://friendy-ui.vercel.app/friendy-qr.svg` → **200**
+- **Desktop:** QR visible bottom-right; `curl -sI https://friendy-ui.vercel.app/qr_code.svg` -> **200**

@@ -25,6 +25,6 @@ npx vercel alias set "$LATEST" friedy-ui.vercel.app
 
 echo ""
 echo "Verify static asset (optional; QR is also bundled in JS after deploy):"
-curl -sI "https://friendy-ui.vercel.app/friendy-qr.svg" | head -3 || true
+curl -sI "https://friendy-ui.vercel.app/qr_code.svg" | head -3 || true
 echo ""
 echo "Open: https://friendy-ui.vercel.app/"

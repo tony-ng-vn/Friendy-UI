@@ -25,6 +25,6 @@ const clean =
   inner +
   "\n</svg>\n";
 
-const svgOut = join(root, "public/friendy-qr.svg");
+const svgOut = join(root, "public/qr_code.svg");
 writeFileSync(svgOut, clean);
 console.log(`Wrote ${svgOut} (${clean.length} bytes, ${inner.split("<rect").length - 1} rects)`);
