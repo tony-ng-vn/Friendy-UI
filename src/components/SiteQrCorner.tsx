@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 const SITE_URL = "https://friendy-ui.vercel.app";
 
 export default function SiteQrCorner() {
@@ -17,13 +15,13 @@ export default function SiteQrCorner() {
           className="block cursor-pointer rounded-[4px] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#9d6b33]"
           aria-label={`Open ${SITE_URL} (same link as this QR code)`}
         >
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/friendy-qr.png"
             alt="QR code for friendy-ui.vercel.app"
             width={128}
             height={128}
             className="size-28 sm:size-32"
-            priority
           />
         </a>
       </div>
