@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "alias:prod": "bash scripts/set-prod-aliases.sh",
+    "deploy:prod": "npm run build && npx vercel --prod --yes && npm run alias:prod"
   },
   "keywords": [],
   "author": "",
