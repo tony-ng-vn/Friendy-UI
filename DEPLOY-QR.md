@@ -1,29 +1,27 @@
-# Fix blank QR on friendy-ui.vercel.app
+# Deploy Friendy UI (QR widget)
 
-**Cause:** Production still serves an old build (`/friendy-qr.svg` → 500). The bundled PNG fix must be **committed, pushed, and deployed**.
+## What ships
 
-## One command (after commit + push)
+- **QR:** `public/friendy-qr.svg` → `/friendy-qr.svg`
+- **Mobile (iPhone):** QR hidden (`hidden md:block`)
+- **Desktop (≥768px):** QR bottom-right, size scales with viewport (`clamp` + `vmin`)
+
+## Deploy
 
 ```bash
 cd /Users/minhthiennguyen/Desktop/Friendy-UI
-git add src/components/SiteQrCorner.tsx scripts/set-prod-aliases.sh package.json
-git commit -m "Bundle QR PNG in JS and sync Vercel aliases."
+
+git add src/components/SiteQrCorner.tsx scripts/set-prod-aliases.sh DEPLOY-QR.md
+git add -u   # stages deletion of root duplicate SVG if present
+
+git commit -m "Desktop-only responsive QR widget; hide on mobile."
+
 git push origin main
-npm run deploy:prod
+npx vercel --prod --yes
+npm run alias:prod
 ```
-
-## Or alias only (if you already deployed)
-
-```bash
-npx vercel alias set https://friendy-82klt57mg-tonys-projects-6d126fa0.vercel.app friendy-ui.vercel.app
-```
-
-Replace the URL with the newest **Production** URL from `npx vercel ls friendy-ui` (full `https://…vercel.app` line — no `<` `>`).
 
 ## Verify
 
-```bash
-curl -sI https://friendy-ui.vercel.app/ | head -3
-```
-
-Open the site → View Source → QR `img` should use `/_next/static/media/…` not `/friendy-qr.svg`.
+- **Phone:** no QR card; waitlist button not covered
+- **Desktop:** QR visible bottom-right; `curl -sI https://friendy-ui.vercel.app/friendy-qr.svg` → **200**
