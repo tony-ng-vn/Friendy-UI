@@ -2,7 +2,7 @@
 
 ## What ships
 
-- **QR:** `public/friendy-qr.svg` → `/friendy-qr.svg`
+- **QR:** `public/friendy-qr.svg` (regenerate with `npm run generate:qr`) → `/friendy-qr.svg`
 - **Mobile (iPhone):** QR hidden (`hidden md:block`)
 - **Desktop (≥768px):** QR bottom-right, size scales with viewport (`clamp` + `vmin`)
 

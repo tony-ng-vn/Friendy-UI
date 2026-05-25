@@ -22,7 +22,7 @@ export default function SiteQrCorner() {
             alt="QR code for friendy-ui.vercel.app"
             width={128}
             height={128}
-            className="aspect-square size-[clamp(5.5rem,12vmin,8.5rem)]"
+            className="aspect-square size-[clamp(5.5rem,12vmin,8.5rem)] [image-rendering:crisp-edges]"
           />
         </a>
       </div>
