@@ -94,20 +94,35 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative flex min-h-screen w-full flex-col items-center justify-center gap-8 bg-bg px-4">
+    <section className="relative flex min-h-[100dvh] w-full flex-col items-center bg-bg px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(2rem,env(safe-area-inset-top))] sm:px-6">
       <RoseCurve onFirstDrawComplete={handleFirstDraw} />
-      <Headline ref={headlineRef} />
-      <div className="relative z-10 max-w-md px-4 text-center">
-        <p className="font-serif text-lg leading-snug text-[#4d4034] sm:text-xl">
-          Remember people by the moment, not the name.
-        </p>
-        <p className="mt-3 font-display text-sm leading-relaxed text-[#7a644e] sm:text-base">
-          You meet people on LinkedIn, Instagram, iMessage, WhatsApp, WeChat, and
-          everywhere else — Friendy is one place to find them again by how you
-          met, not by name.
-        </p>
+
+      <div className="relative z-10 flex w-full max-w-4xl flex-1 flex-col items-center justify-center">
+        <Headline ref={headlineRef} />
+
+        <div
+          className="mt-6 w-full max-w-[34rem] sm:mt-8"
+          aria-labelledby="friendy-hero-subcopy"
+        >
+          <div className="rounded-2xl border border-[#e9ded2]/90 bg-[#fffdf7]/80 px-5 py-4 shadow-[0_8px_32px_rgba(77,64,52,0.06)] backdrop-blur-sm sm:px-6 sm:py-5">
+            <p
+              id="friendy-hero-subcopy"
+              className="text-center font-display text-[0.9375rem] font-medium leading-snug text-[#4d4034] text-balance sm:text-base"
+            >
+              Find people by how you met — not their name.
+            </p>
+            <p className="mt-2.5 text-center font-display text-sm leading-relaxed text-[#6f6258] text-pretty sm:text-[0.9375rem]">
+              LinkedIn, Instagram, iMessage, WhatsApp, WeChat, and everywhere else
+              — one place to search your connections when memory is clearer than a
+              name.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-10 flex w-full justify-center max-sm:mb-2 sm:mt-12">
+          <GlassButton ref={buttonRef} onClick={() => setConnectState("open")} />
+        </div>
       </div>
-      <GlassButton ref={buttonRef} onClick={() => setConnectState("open")} />
 
       {connectState !== "idle" ? (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-[#4d4034]/25 px-4 py-5 backdrop-blur-[2px] sm:items-center">
